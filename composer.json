@@ -2,7 +2,7 @@
   "name": "block8/geolocation",
   "description": "Simple geolocation.",
   "license": "BSD-2-Clause",
-  
+
   "require": {
     "php": ">=7.1.0",
     "guzzlehttp/guzzle": "~6.0"

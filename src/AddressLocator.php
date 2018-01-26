@@ -9,7 +9,15 @@ class AddressLocator
 {
     public static function locateFromString(string $address) : Address
     {
+        if (IpLocator::isValidIp($address)) {
+            return self::locateFromIP($address);
+        }
         if (preg_match('/([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})/', $address)) {
+            return self::locateFromIP($address);
+        }
+
+        if (preg_match('/\:\:ffff\:([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})/', $address)) {
+            $address = substr($address, 7);
             return self::locateFromIP($address);
         }
 

@@ -17,8 +17,25 @@ class IpLocator
 
     public function __construct(string $ip)
     {
-        $ip = preg_replace('/([^0-9\.])/', '', $ip);
-        $this->ip = $ip;
+        if (!self::isValidIp($ip)) {
+            throw new BadRequestException($ip . ' is not a valid IP address.');
+        }
+
+        $this->ip = $this->cleanIp($ip);
+    }
+
+    public static function isValidIp(string $ip)
+    {
+        return !(filter_var($ip, FILTER_VALIDATE_IP) === false);
+    }
+
+    protected function cleanIp(string $ip)
+    {
+        if (preg_match('/\:\:ffff\:([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})/', $ip)) {
+            $ip = substr($ip, 7);
+        }
+
+        return $ip;
     }
 
     public function locate() : Address
