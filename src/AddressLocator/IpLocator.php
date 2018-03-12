@@ -5,6 +5,7 @@ namespace Block8\Geolocation\AddressLocator;
 use Block8\Geolocation\Coordinates;
 use Block8\Geolocation\Exception\BadRequestException;
 use Block8\Geolocation\Exception\HttpException;
+use Block8\Geolocation\Exception\LocalIpAddressException;
 use GuzzleHttp\Client;
 use Block8\Geolocation\Address;
 
@@ -21,15 +22,24 @@ class IpLocator
             throw new BadRequestException($ip . ' is not a valid IP address.');
         }
 
+        if (self::isLocalIp($ip)) {
+            throw new LocalIpAddressException();
+        }
+
         $this->ip = $this->cleanIp($ip);
     }
 
-    public static function isValidIp(string $ip)
+    public static function isValidIp(string $ip) : bool
     {
         return !(filter_var($ip, FILTER_VALIDATE_IP) === false);
     }
 
-    protected function cleanIp(string $ip)
+    public static function isLocalIp(string $ip) : bool
+    {
+        return !filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+    }
+
+    protected function cleanIp(string $ip) : string
     {
         if (preg_match('/\:\:ffff\:([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})/', $ip)) {
             $ip = substr($ip, 7);
