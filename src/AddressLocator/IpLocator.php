@@ -16,8 +16,17 @@ class IpLocator
     /** @var string */
     protected $ip;
 
+    /** @var string */
+    protected $apiKey;
+
     public function __construct(string $ip)
     {
+        $this->apiKey = config('services.ipdata.key', null);
+
+        if (empty($this->apiKey)) {
+            throw new BadRequestException('Cannot perform IP lookup without a valid IPData.co API key.');
+        }
+
         if (!self::isValidIp($ip)) {
             throw new BadRequestException($ip . ' is not a valid IP address.');
         }
@@ -54,7 +63,8 @@ class IpLocator
 
         try {
             $client = new Client();
-            $response = $client->get(self::SERVICE_URI . $this->ip);
+            $url = self::SERVICE_URI . $this->ip . '?api-key=' . $this->apiKey;
+            $response = $client->get($url);
         } catch (\Exception $ex) {
             throw new HttpException($ex->getMessage(), $ex->getCode(), $ex);
         }
